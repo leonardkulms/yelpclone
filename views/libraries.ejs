@@ -1,0 +1,17 @@
+<% include partials/header %>
+
+<h1>This is the libraries page!</h1>
+
+<a href="/libraries/new">Add New Library</a>
+
+ <% libraries.forEach(function(library){ %>
+<div>
+   <h4>
+    <%= library.name %>
+   </h4>
+   <img src=" <%= library.image %> " alt="">
+</div>
+<% }); %> 
+
+
+<% include partials/footer %>
