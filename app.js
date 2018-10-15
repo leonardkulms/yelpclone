@@ -1,37 +1,68 @@
-const express = require("express");
-bodyParser = require("body-parser");
-app = express();
+const   express     = require("express"),
+        mongoose    = require("mongoose"),
+        bodyParser  = require("body-parser"),
+        app         = express();
+
+mongoose.connect('mongodb://localhost/yelp');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine", "ejs");
 
-let libraries = [
-    { name: "Book Tower", image:"https://images.unsplash.com/photo-1497796742626-fe30f204ec54?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=404ef54e001d6c5b6fcc726cca25f6ff&auto=format&fit=crop&w=800&q=60"},
-    { name: "Philosopher's Home ", image:"https://images.unsplash.com/photo-1505664194779-8beaceb93744?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=42a10871f610c84a108afd8c3750fbae&auto=format&fit=crop&w=800&q=60"},
-    { name: "Medical Library", image:"https://images.unsplash.com/photo-1507738978512-35798112892c?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=81010823b449bfb0f874f6c8d71a5df7&auto=format&fit=crop&w=800&q=60"},
-    { name: "Orchard Lib", image:"https://images.unsplash.com/photo-1520387294843-fd994fd872e7?ixlib=rb-0.3.5&s=caf83b034284ac4e891db7f0b08f4242&auto=format&fit=crop&w=750&q=80"}
-];
+// library schema
+let librarySchema = new mongoose.Schema({
+    name: String,
+    image: String,
+    description: String
+});
+
+const Library = mongoose.model('Library', librarySchema);
+
+// const kitty = new Library({ name: "Medical Library", image:"https://images.unsplash.com/photo-1507738978512-35798112892c?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=81010823b449bfb0f874f6c8d71a5df7&auto=format&fit=crop&w=800&q=60" ,
+// description: "The Medical Library On Our Campus. People expect you to have sanitized your hands. It's really looking good though. So clean."});
+// kitty.save().then(() => console.log('books secure'));
+
 
 app.get("/", function(req,res){
     res.render("landing");
 });
 
 app.get("/libraries", function(req, res){
-    res.render("libraries", {libraries: libraries});
+    Library.find({}, function(err, libraries){
+        if(err){
+            console.log(err)
+        }
+        else{
+            res.render("index.ejs", {libraries: libraries});
+        }
+    });
+   
 });
 
 app.post("/libraries", function(req, res){
     let name = req.body.name;
     let image = req.body.image;
-    let newLibrary = {name: name, image: image};
-    libraries.push(newLibrary);
+    let description = req.body.description;
+    let newLibrary = {name: name, image: image, description:description};
+    // create new library and save to db
+    let kitty = new Library(newLibrary);
+    kitty.save().then(() => console.log('books secure'));
     res.redirect("/libraries");
 });
 
 app.get("/libraries/new", function(req, res){
     res.render("new");
-})
+});
 
+app.get("/libraries/:id", function(req, res){
+    Library.findById(req.params.id, function(err, foundLibrary){
+        if(err){
+            console.log(err);
+        }else{
+            res.render("show",{library:foundLibrary});
+        }
+
+    });
+});
 app.listen(3000, function(){
     console.log("serving the clone on your local 3000");
 });
