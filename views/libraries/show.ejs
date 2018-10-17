@@ -1,0 +1,21 @@
+<% include ../partials/header.ejs %>
+
+
+<h1> 
+    <%= library.name %>
+</h1>
+
+
+
+<img src="<%= library.image %> " alt=" <%= library.name %> ">
+
+<p> 
+    <%= library.description %>
+</p>
+
+<%library.comments.forEach(function(comment){%>
+    <p>
+        <strong> <%= comment.author%></strong> - <%=comment.text%>
+    </p>
+<%})%>
+<% include ../partials/footer.ejs %>
