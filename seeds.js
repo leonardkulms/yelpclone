@@ -1,64 +1,58 @@
-const mongoose = require("mongoose");
-const Library = require("./models/library");
-const Comment   = require("./models/comment");
- 
-const data = [
+var mongoose = require("mongoose");
+var Campground = require("./models/campground");
+var Comment   = require("./models/comment");
+
+var data = [
     {
-        name: "Stockholm", 
-        image: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=a53f6ccb2fccd80ae7f6c6af8f289319&auto=format&fit=crop&w=1950&q=80",
-        description: "Stadsbiblioteket, Stockholm, Sweden"
+        name: "Cloud's Rest", 
+        image: "https://farm4.staticflickr.com/3795/10131087094_c1c0a1c859.jpg",
+        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
     },
     {
-        name: "Stuttgart", 
-        image: "https://images.unsplash.com/photo-1529148482759-b35b25c5f217?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=ecd60da4b445ee413d7209af84f49db4&auto=format&fit=crop&w=1950&q=80",
-        description: "Stadtbibliothek, Stuttgart, Germany"
+        name: "Desert Mesa", 
+        image: "https://farm6.staticflickr.com/5487/11519019346_f66401b6c1.jpg",
+        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
     },
     {
-        name: "Porto", 
-        image: "https://images.unsplash.com/photo-1531674842274-9563aa15686f?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=beaa6c2c93de2b0feaf063e84b90c05b&auto=format&fit=crop&w=802&q=80",
-        description: "Livraria Lello, Porto, Portugal"
+        name: "Canyon Floor", 
+        image: "https://farm1.staticflickr.com/189/493046463_841a18169e.jpg",
+        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
     }
 ]
- 
+
 function seedDB(){
-   //Remove all libraries
-   Library.remove({}, function(err){
+   //Remove all campgrounds
+   Campground.remove({}, function(err){
         if(err){
             console.log(err);
         }
-        console.log("removed libraries!");
-        Comment.remove({}, function(err) {
-            if(err){
-                console.log(err);
-            }
-            console.log("removed comments!");
-             //add a few libraries
-            data.forEach(function(seed){
-                Library.create(seed, function(err, library){
-                    if(err){
-                        console.log(err)
-                    } else {
-                        console.log("added a library!");
-                        //create a comment
-                        Comment.create(
-                            {
-                                text: "This place is great, but I wish there was internet",
-                                author: "Homer"
-                            }, function(err, comment){
-                                if(err){
-                                    console.log(err);
-                                } else {
-                                    library.comments.push(comment);
-                                    library.save();
-                                    console.log("Created new comment");
-                                }
-                            });
-                    }
-                });
+        console.log("removed campgrounds!");
+         //add a few campgrounds
+        data.forEach(function(seed){
+            Campground.create(seed, function(err, campground){
+                if(err){
+                    console.log(err)
+                } else {
+                    console.log("added a campground");
+                    //create a comment
+                    Comment.create(
+                        {
+                            text: "This place is great, but I wish there was internet",
+                            author: "Homer"
+                        }, function(err, comment){
+                            if(err){
+                                console.log(err);
+                            } else {
+                                campground.comments.push(comment);
+                                campground.save();
+                                console.log("Created new comment");
+                            }
+                        });
+                }
             });
         });
     }); 
     //add a few comments
 }
- 
+
 module.exports = seedDB;

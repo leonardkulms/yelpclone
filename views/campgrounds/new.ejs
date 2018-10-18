@@ -1,11 +1,9 @@
-<% include ../partials/header.ejs %>
-
+<% include ../partials/header %>
 <div class="container">
     <div class="row">
-        <h1 style="text-align: center;">Add a new Library!</h1>
-
-        <div style="margin: 30px auto; width: 30%;">
-            <form action="/libraries" method="POST">
+        <h1 style="text-align: center">Create a New Campground</h1>
+        <div style="width: 30%; margin: 25px auto;">
+            <form action="/campgrounds" method="POST">
                 <div class="form-group">
                     <input class="form-control" type="text" name="name" placeholder="name">
                 </div>
@@ -19,10 +17,8 @@
                     <button class="btn btn-lg btn-primary btn-block">Submit!</button>
                 </div>
             </form>
-            <a href="/libraries">Go Back</a>
+            <a href="/campgrounds">Go Back</a>
         </div>
     </div>
 </div>
-
-
-<% include ../partials/footer.ejs %>
+<% include ../partials/footer %>
