@@ -2,16 +2,42 @@ var express     = require("express"),
     app         = express(),
     bodyParser  = require("body-parser"),
     mongoose    = require("mongoose"),
+    passport    = require("passport"),
+    localStrategy = require("passport-local"),
+    User        = require("./models/user"),
     Campground  = require("./models/campground"),
     Comment     = require("./models/comment"),
     seedDB      = require("./seeds")
     
+//======= APP CONFIG
 mongoose.connect("mongodb://localhost/yelp_camp_v4");
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 seedDB();
 
+//========= PASSPORT CONFIG
+app.use(require("express-session")({
+    secret: "AUF!",
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new localStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
+app.use(function(req,res,next){
+res.locals.currentUser = req.user;
+next();
+});
+
+//=================
+//ROUTES
+
+// LANDING
 app.get("/", function(req, res){
     res.render("landing");
 });
@@ -29,7 +55,7 @@ app.get("/campgrounds", function(req, res){
 });
 
 //CREATE - add new campground to DB
-app.post("/campgrounds", function(req, res){
+app.post("/campgrounds", isLoggedIn, function(req, res){
     // get data from form and add to campgrounds array
     var name = req.body.name;
     var image = req.body.image;
@@ -47,12 +73,12 @@ app.post("/campgrounds", function(req, res){
 });
 
 //NEW - show form to create new campground
-app.get("/campgrounds/new", function(req, res){
+app.get("/campgrounds/new", isLoggedIn, function(req, res){
    res.render("campgrounds/new"); 
 });
 
 // SHOW - shows more info about one campground
-app.get("/campgrounds/:id", function(req, res){
+app.get("/campgrounds/:id", isLoggedIn, function(req, res){
     //find the campground with provided ID
     Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
         if(err){
@@ -70,7 +96,7 @@ app.get("/campgrounds/:id", function(req, res){
 // COMMENTS ROUTES
 // ====================
 
-app.get("/campgrounds/:id/comments/new", function(req, res){
+app.get("/campgrounds/:id/comments/new", isLoggedIn, function(req, res){
     // find campground by id
     Campground.findById(req.params.id, function(err, campground){
         if(err){
@@ -81,7 +107,7 @@ app.get("/campgrounds/:id/comments/new", function(req, res){
     })
 });
 
-app.post("/campgrounds/:id/comments", function(req, res){
+app.post("/campgrounds/:id/comments", isLoggedIn, function(req, res){
    //lookup campground using ID
    Campground.findById(req.params.id, function(err, campground){
        if(err){
@@ -103,6 +129,48 @@ app.post("/campgrounds/:id/comments", function(req, res){
    //connect new comment to campground
    //redirect campground show page
 });
+
+// AUTH ROUTES
+
+// show register form
+app.get("/register", function(req, res){
+    res.render("register");
+});
+// handle signing up
+app.post("/register", function(req, res){
+    var newUser = new User({username: req.body.username});
+    User.register(newUser, req.body.password, function(err, user){
+        if(err){
+            console.log(err);
+        }
+        passport.authenticate("local")(req, res, function(){
+            res.redirect("/campgrounds");
+        });
+    });
+});
+
+//show login form
+app.get("/login", function(req,res){
+    res.render("login");
+});
+//handle login logic
+app.post("/login", passport.authenticate("local", {
+    successRedirect: "/campgrounds",
+    failureRedirect: "/login"
+}), function(req, res){  
+});
+//log out
+app.get("/logout", function(req, res){
+    req.logout();
+    res.redirect("/campgrounds");
+});
+
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return(next());
+    }
+    res.redirect("/login");
+    }
 
 app.listen(3000, function(){
    console.log("The YelpCamp Server Has Started!");
